@@ -1,0 +1,54 @@
+{
+    "packaging_format": 1,
+    "name": "Docker Registry",
+    "id": "docker-registry",
+    "description": {
+        "en": "Docker registry for yunohost"
+    },
+    "url": "",
+    "license": "",
+    "version": "",
+    "maintainer": {
+        "name": "plopoyop",
+        "email": "clement@plopoyop.me",
+        "url": "https://github.com/plopoyop"
+    },
+    "multi_instance": true,
+    "services": [
+        "nginx",
+        "docker"
+    ],
+    "requirements": {
+        "yunohost": ">> 2.5.6"
+    },
+    "arguments": {
+        "install" : [
+            {
+                "name": "domain",
+                "type": "domain",
+                "ask": {
+                    "en": "Choose a domain for your Docker Registry"
+                },
+                "example": "domain.org"
+            },
+            {
+                "name": "path",
+                "type": "path",
+                "ask": {
+                    "en": "Choose a path for your Docker Registry"
+                },
+                "example": "/docker",
+                "default": "/docker"
+            },
+            {
+                "name": "is_public",
+                "type": "boolean",
+                "ask": {
+                    "en": "Is it a public site ?",
+                    "fr": "Est-ce un site public ?"
+                },
+                "default": true
+            }
+        ]
+    }
+}
