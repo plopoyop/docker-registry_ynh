@@ -24,10 +24,15 @@ if [[ ! $? -eq 0 ]]; then
   ynh_die "domain not available"
 fi
 
+# Register/book a web path for an app
+ynh_webpath_register $app $domain $path
+
+
 # Store Settings
 ynh_app_setting_set $app is_public $is_public
 ynh_app_setting_set $app storage_path $storage_path
 ynh_app_setting_set $app web_port $port
+ynh_app_setting_set $app path $path
 
 #install dependencies dependencies
 ynh_install_app_dependencies apt-transport-https ca-certificates curl gnupg2 software-properties-common
@@ -54,7 +59,7 @@ docker run -d \
   registry:2
 
 # Unprotect root from SSO if public
-if [ "$is_public" = "Yes" ];
+if [ "$is_public" = "1" ];
 then
 	ynh_app_setting_set "$app" skipped_uris "/"
 fi

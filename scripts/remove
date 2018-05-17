@@ -18,7 +18,7 @@ db_name=$app
 domain=$(ynh_app_setting_get $app domain)
 
 sudo rm -f /etc/nginx/conf.d/$domain.d/$app.conf
-sudo rm -f /home/yunohost.app/$app/
+sudo rm -rf /home/yunohost.app/$app/
 
 docker stop $app
 docker rm $app
