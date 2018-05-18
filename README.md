@@ -1,5 +1,4 @@
 # Docker Registry
-# NOT FUNCTIONAL YET
 
 Attempt to provide a private docker registry for yunohost
 
