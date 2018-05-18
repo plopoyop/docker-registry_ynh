@@ -1,0 +1,37 @@
+#!/bin/bash
+# Exit on command errors and treat unset variables as an error
+set -eu
+
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+source /usr/share/yunohost/helpers
+
+ynh_abort_if_errors
+
+#=================================================
+# LOAD SETTINGS
+#=================================================
+
+app=$YNH_APP_INSTANCE_NAME
+
+storage_path=$(ynh_app_setting_get $app storage_path)
+domain=$(ynh_app_setting_get $app domain)
+
+#=================================================
+# STANDARD BACKUP STEPS
+#=================================================
+# BACKUP THE DATA DIR
+#=================================================
+
+workdir=$(pwd)
+cd $storage_path
+tar -czf $workdir/$app-data.gtar .
+cd $workdir
+ynh_backup ./$app-data.gtar
+
+#=================================================
+# BACKUP THE CONFIGURATION
+#=================================================
+
+ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf" "conf/nginx"

@@ -1,0 +1,82 @@
+#!/bin/bash
+set -eu
+
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+source /usr/share/yunohost/helpers
+
+#=================================================
+# GENERIC START
+#=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
+
+# Exit on command errors and treat access to unset variables as an error
+ynh_abort_if_errors
+
+#=================================================
+# LOAD SETTINGS
+#=================================================
+
+app=$YNH_APP_INSTANCE_NAME
+
+domain=$(ynh_app_setting_get $app domain)
+path=$(ynh_app_setting_get $app path)
+storage_path=$(ynh_app_setting_get $app storage_path)
+port=$(ynh_app_setting_get $app port)
+
+# Check domain/path availability
+ynh_webpath_available $domain $path
+if [[ ! $? -eq 0 ]]; then
+  ynh_die "domain not available"
+fi
+
+# Check destination directory
+[[ -d $storage_path ]] && ynh_die \
+"The destination directory '$storage_path' already exists.\
+ You should safely delete it before restoring this app."
+
+# Create destination
+sudo mkdir -p $storage_path
+
+#=================================================
+# STANDARD RESTORATION STEPS
+#=================================================
+# RESTORE THE NGINX CONFIGURATION
+#=================================================
+
+sudo cp -a "conf/nginx" "/etc/nginx/conf.d/$domain.d/$app.conf"
+sudo systemctl reload nginx
+
+#=================================================
+# RESTORE THE APP MAIN DIR
+#=================================================
+
+sudo tar -xzf ./$app-data.gtar -C $storage_path
+
+#=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+#install dependencies
+ynh_install_app_dependencies apt-transport-https ca-certificates curl gnupg2 software-properties-common
+
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+
+sudo add-apt-repository "deb https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+sudo apt-get update
+
+ynh_install_app_dependencies docker-ce
+
+#restart the service in case it was already installed
+service docker restart
+
+#=================================================
+# RESTART THE CONTAINER
+#=================================================
+docker run -d \
+  -p $port:5000 \
+  --restart=always \
+  --name $app \
+  -v $storage_path:/var/lib/registry \
+  registry:2

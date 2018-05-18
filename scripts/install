@@ -4,14 +4,16 @@
 set -eu
 
 # Source app helpers
-. /usr/share/yunohost/helpers
+source /usr/share/yunohost/helpers
+source ./_common.sh
 
 # Exit if an error occurs during the execution of the script
 # ynh_abort_if_errors
+ynh_abort_if_errors
 
 domain=$YNH_APP_ARG_DOMAIN
 app=$YNH_APP_INSTANCE_NAME
-path=$YNH_APP_ARG_PATH
+path='/'
 is_public=$YNH_APP_ARG_IS_PUBLIC
 
 storage_path=/home/yunohost.app/$app
@@ -31,18 +33,10 @@ ynh_webpath_register $app $domain $path
 # Store Settings
 ynh_app_setting_set $app is_public $is_public
 ynh_app_setting_set $app storage_path $storage_path
-ynh_app_setting_set $app web_port $port
+ynh_app_setting_set $app port $port
 ynh_app_setting_set $app path $path
 
-#install dependencies dependencies
-ynh_install_app_dependencies apt-transport-https ca-certificates curl gnupg2 software-properties-common
-
-curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
-
-sudo add-apt-repository "deb https://download.docker.com/linux/debian $(lsb_release -cs) stable"
-sudo apt-get update
-
-ynh_install_app_dependencies docker-ce
+installdeps
 
 sudo mkdir $storage_path
 
@@ -51,12 +45,7 @@ sed -i "s@#LOCATION#@$path@g" ../conf/nginx.conf
 sed -i "s@#PORT#@$port@g" ../conf/nginx.conf
 sudo cp ../conf/nginx.conf /etc/nginx/conf.d/$domain.d/$app.conf
 
-docker run -d \
-  -p $port:5000 \
-  --restart=always \
-  --name $app \
-  -v $storage_path:/var/lib/registry \
-  registry:2
+startservice $port $app $path
 
 # Unprotect root from SSO if public
 if [ "$is_public" = "1" ];

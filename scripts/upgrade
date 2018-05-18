@@ -1,0 +1,25 @@
+#!/bin/bash
+set -eu
+
+#=================================================
+# GENERIC START
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+source /usr/share/yunohost/helpers
+source ./_common.sh
+
+ynh_abort_if_errors
+
+app=$YNH_APP_INSTANCE_NAME
+storage_path=$(ynh_app_setting_get $app storage_path)
+path=$(ynh_app_setting_get $app path)
+port=$(ynh_app_setting_get $app port)
+
+stopservice $app
+removeservice $app
+
+docker pull registry:2
+
+startservice $port $app $path

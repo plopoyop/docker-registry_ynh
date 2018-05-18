@@ -5,9 +5,9 @@
     "description": {
         "en": "Docker registry for yunohost"
     },
-    "url": "",
-    "license": "",
-    "version": "",
+    "url": "https://github.com/docker/distribution/",
+    "license": "apache-2.0",
+    "version": "2.0",
     "maintainer": {
         "name": "plopoyop",
         "email": "clement@plopoyop.me",
@@ -30,15 +30,6 @@
                     "en": "Choose a domain for your Docker Registry"
                 },
                 "example": "domain.org"
-            },
-            {
-                "name": "path",
-                "type": "path",
-                "ask": {
-                    "en": "Choose a path for your Docker Registry"
-                },
-                "example": "/docker",
-                "default": "/docker"
             },
             {
                 "name": "is_public",

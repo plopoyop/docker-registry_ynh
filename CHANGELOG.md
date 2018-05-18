@@ -1,1 +1,2 @@
+- 2018-05-18 : Working install
 - 2018-05-17 : first commit
